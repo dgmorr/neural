@@ -20,7 +20,7 @@ identity = Activation(identity_f, identity_fprime)
 def sigmoid_f(x):
     return 1 / (1 + math.e ** (-x))
 def sigmoid_fprime(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+    return sigmoid_f(x) * (1 - sigmoid_f(x))
 sigmoid = Activation(sigmoid_f, sigmoid_fprime)
 
 def tanh_f(x):

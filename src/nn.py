@@ -10,29 +10,29 @@ class Neuron(object):
         self.upstream_weights = []
         self.downstream_neurons = []
         self.downstream_weights = []
-        self.current_value = None
-        self.current_z = None
+        self.pre_activation_value = None
+        self.activation_value = None
 
-    def _link_input(self, input_neuron, weight):
+    def link_input(self, input_neuron, weight):
         self.upstream_neurons.append(input_neuron)
         self.upstream_weights.append(weight)
         input_neuron.downstream_neurons.append(self)
         input_neuron.downstream_weights.append(weight)
 
-    def _link_output(self, output_neuron, weight):
+    def link_output(self, output_neuron, weight):
         self.downstream_neurons.append(output_neuron)
         self.downstream_weights.append(weight)
         output_neuron.upstream_neurons.append(self)
         output_neuron.upstream_weights.append(weight)
 
-    def _set_bias(self, bias):
+    def set_bias(self, bias):
         self.bias = bias
 
-    def _set_activation(self, ac):
-        self.activation = ac
+    def set_activation(self, f):
+        self.activation = f
 
-    def _set_value(self, v):
-        self.current_value = v
+    def set_value(self, v):
+        self.activation_value = v
 
 
     def activate(self):
@@ -40,11 +40,11 @@ class Neuron(object):
         for i in range(len(self.upstream_neurons)):
             neuron = self.upstream_neurons[i]
             weight = self.upstream_weights[i]
-            total += neuron.current_value * weight
+            total += neuron.activation_value * weight
         total += self.bias
-        self.current_z = total
+        self.pre_activation_value = total
         total = self.activation.activate(total)
-        self.current_value = total
+        self.activation_value = total
 
 
 class NeuralNet(object):
@@ -55,16 +55,16 @@ class NeuralNet(object):
         self.output_size = 0
         self.n_layers = 0
 
-    def _add_layer(self, n, f):
+    def add_layer(self, n, f):
         self.layers.append([Neuron(f) for _ in range(n)])
 
-    def _fully_connect_layers(self, l1, l2, weights):
+    def fully_connect_layers(self, l1, l2, weights):
         for i in range(len(l1)):
             for j in range(len(l2)):
                 input_neuron = l1[i]
                 output_neuron = l2[j]
                 weight = weights[j][i]
-                input_neuron._link_output(output_neuron, weight)
+                input_neuron.link_output(output_neuron, weight)
 
     # Spec of the format [("identity|sigmoid|tanh|relu", n)]
     # Initialize a neural net with all weights 1 and all biases 0 
@@ -74,14 +74,14 @@ class NeuralNet(object):
                 print(f"Unrecognized activation function: {activation}")
                 return
             ac = activation_types[activation]
-            self._add_layer(n, ac)
+            self.add_layer(n, ac)
         for i in range(len(self.layers) - 1):
             l1 = self.layers[i]
             l2 = self.layers[i + 1]
             n = len(l1)
             m = len(l2)
             weights = [[1 for _ in range(n)] for _ in  range(m)]
-            self._fully_connect_layers(l1, l2, weights)
+            self.fully_connect_layers(l1, l2, weights)
         self.input_size = len(self.layers[0])
         self.output_size = len(self.layers[-1])
         self.n_layers =  len(self.layers)
@@ -96,7 +96,7 @@ class NeuralNet(object):
         for layer in self.layers[1:]:
             for neuron in layer:
                 neuron.activate()
-        output_vector = [neuron.current_value for neuron in self.layers[-1]]
+        output_vector = [neuron.activation_value for neuron in self.layers[-1]]
         return output_vector
         
 
