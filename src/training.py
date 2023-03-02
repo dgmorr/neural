@@ -1,3 +1,5 @@
+import random
+
 # t = training set of the form [(x, y)]
 def mse(t):
     total_error = 0
@@ -56,6 +58,29 @@ def weight_gradient(net, error_vectors):
             layer_derivs.append(layer_derivs_j)
         weight_derivs.append(layer_derivs)
     return weight_derivs
+
+def test_train_split(dataset, p):
+    n = len(dataset)
+    take = n * p
+    copy = dataset.copy()
+    random.shuffle(copy)
+    return (copy[:take], copy[take:])
+
+def batch_data(training_data, n_batches=None, batch_size=0)
+    batches = []
+    n = len(training_data)
+    copy = training_data.copy()
+    random.shuffle(copy)
+    if n_batches:
+        batch_size = n / n_batches
+    if not batch_size:
+        return [copy]
+    while copy:
+        batches.append(copy[:batch_size])
+        copy = copy[batch_size:]
+    return batches
+
+
 
 
     
